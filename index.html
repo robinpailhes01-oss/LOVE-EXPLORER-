@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Love Explorer — Kia, votre assistante romantique</title>
+  <meta name="description" content="Love Explorer : les plus beaux logements romantiques. Kia, notre assistante, vous guide vers l'escapade parfaite pour deux." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' font-size='90'%3E💗%3C/text%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <!-- ═══════════════ HEADER ═══════════════ -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="#">
+        <span class="brand-mark">❦</span>
+        <span class="brand-name">Love <em>Explorer</em></span>
+      </a>
+      <nav class="site-nav">
+        <a href="#logements">Logements</a>
+        <a href="#experiences">Expériences</a>
+        <a href="#apropos">À propos</a>
+        <button class="btn btn-outline" id="nav-open-chat">Parler à Kia</button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ═══════════════ HERO ═══════════════ -->
+  <main>
+    <section class="hero">
+      <div class="hero-glow"></div>
+      <div class="hero-content">
+        <p class="hero-eyebrow">Escapades romantiques d'exception</p>
+        <h1>Trouvez le nid parfait<br /><span class="accent">pour vous deux</span></h1>
+        <p class="hero-sub">
+          Cabanes perchées, suites avec jacuzzi privatif, bulles sous les étoiles…
+          Kia, notre assistante, vous pose quelques questions et vous guide vers
+          le logement et l'expérience faits pour votre histoire.
+        </p>
+        <div class="hero-actions">
+          <button class="btn btn-primary btn-lg" id="hero-open-chat">
+            💬 Discuter avec Kia
+          </button>
+          <a class="btn btn-ghost btn-lg" href="#logements">Voir les logements</a>
+        </div>
+        <div class="hero-stats">
+          <div><strong>250+</strong><span>logements romantiques</span></div>
+          <div><strong>4,9/5</strong><span>note des couples</span></div>
+          <div><strong>12</strong><span>régions de rêve</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════ LOGEMENTS ═══════════════ -->
+    <section class="section" id="logements">
+      <div class="section-head">
+        <h2>Nos pépites du moment</h2>
+        <p>Une sélection pensée pour les amoureux — chaque adresse est vérifiée par nos soins.</p>
+      </div>
+      <div class="listings-grid" id="listings-grid">
+        <!-- rempli par app.js -->
+      </div>
+    </section>
+
+    <!-- ═══════════════ EXPÉRIENCES ═══════════════ -->
+    <section class="section section-alt" id="experiences">
+      <div class="section-head">
+        <h2>Des expériences qui font battre le cœur</h2>
+        <p>Ajoutez la touche magique à votre séjour.</p>
+      </div>
+      <div class="experiences-grid">
+        <div class="exp-card"><span class="exp-icon">🥂</span><h3>Champagne &amp; pétales</h3><p>Accueil romantique préparé avant votre arrivée.</p></div>
+        <div class="exp-card"><span class="exp-icon">🍽️</span><h3>Dîner aux chandelles</h3><p>Chef privé ou table gastronomique réservée pour deux.</p></div>
+        <div class="exp-card"><span class="exp-icon">💆</span><h3>Massage en duo</h3><p>Praticien à domicile, huiles chaudes et musique douce.</p></div>
+        <div class="exp-card"><span class="exp-icon">🌌</span><h3>Nuit sous les étoiles</h3><p>Bulles et dômes transparents pour dormir face au ciel.</p></div>
+      </div>
+    </section>
+
+    <!-- ═══════════════ À PROPOS ═══════════════ -->
+    <section class="section" id="apropos">
+      <div class="about">
+        <div class="about-text">
+          <h2>Le Airbnb des amoureux</h2>
+          <p>
+            Love Explorer sélectionne uniquement des logements pensés pour les couples :
+            intimité garantie, cadre exceptionnel, petites attentions. Pas de dortoirs,
+            pas de canapés-lits tristes — que des adresses où l'on a envie de dire
+            « reste encore un peu ».
+          </p>
+          <p>
+            Et pour ne jamais vous tromper, <strong>Kia</strong> — notre assistante —
+            apprend à vous connaître en quelques questions et vous propose les
+            3 adresses faites pour votre occasion, votre ambiance et votre budget.
+          </p>
+          <button class="btn btn-primary" id="about-open-chat">Faire le test avec Kia</button>
+        </div>
+        <div class="about-visual">
+          <div class="about-heart">❦</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>❦ Love Explorer — l'amour mérite une belle adresse. © 2026</p>
+  </footer>
+
+  <!-- ═══════════════ WIDGET KIA ═══════════════ -->
+  <button class="kia-launcher" id="kia-launcher" aria-label="Ouvrir le chat avec Kia">
+    <span class="kia-launcher-icon">💬</span>
+    <span class="kia-launcher-pulse"></span>
+  </button>
+
+  <div class="kia-panel" id="kia-panel" aria-hidden="true">
+    <div class="kia-header">
+      <div class="kia-avatar">K</div>
+      <div class="kia-identity">
+        <strong>Kia</strong>
+        <span class="kia-status"><span class="dot"></span> Assistante Love Explorer</span>
+      </div>
+      <button class="kia-restart" id="kia-restart" title="Recommencer la conversation">↺</button>
+      <button class="kia-close" id="kia-close" aria-label="Fermer le chat">✕</button>
+    </div>
+    <div class="kia-messages" id="kia-messages"></div>
+    <div class="kia-quick" id="kia-quick"></div>
+    <form class="kia-input" id="kia-form">
+      <input type="text" id="kia-text" placeholder="Écrivez à Kia…" autocomplete="off" />
+      <button type="submit" aria-label="Envoyer">➤</button>
+    </form>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/kia.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
