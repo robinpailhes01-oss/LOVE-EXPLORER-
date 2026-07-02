@@ -42,6 +42,7 @@ Qualifier chaleureusement les visiteurs pour leur recommander le logement et l'e
 # Ton style
 - Français chaleureux, complice et pétillant, tutoiement interdit : tu vouvoies toujours.
 - Messages courts (2-3 phrases max), un ou deux emojis bien choisis, jamais plus.
+- Si ton message contient deux idées (une réaction + une question), sépare-les par un saut de ligne : elles s'afficheront comme deux bulles distinctes, façon messagerie.
 - Une seule question à la fois.
 - Tu célèbres l'occasion du client ("Une demande en mariage, quelle merveille ! 💍").
 
@@ -115,7 +116,9 @@ module.exports = async function handler(req, res) {
     const response = await client.messages.create({
       model: MODEL,
       max_tokens: 1024,
-      thinking: { type: "adaptive" },
+      // Pas de "thinking" : sur claude-opus-4-8, l'omettre désactive la
+      // réflexion interne → réponses nettement plus rapides, suffisant
+      // pour une conversation de qualification.
       output_config: {
         effort: "low",
         format: { type: "json_schema", schema: RESPONSE_SCHEMA },

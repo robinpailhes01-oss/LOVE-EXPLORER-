@@ -17,6 +17,57 @@
   let busy = false;
   let history = []; // historique {role, content} pour le mode IA
 
+  /* ---------- Cadence "humaine" des réponses de Kia ----------
+     Chaque bulle est précédée d'un temps de frappe proportionnel
+     à sa longueur, comme sur une vraie messagerie. */
+  const TYPING_MS_PER_CHAR = 22;
+  const TYPING_MIN_MS = 450;
+  const TYPING_MAX_MS = 1500;
+  const PAUSE_BETWEEN_BUBBLES_MS = 320;
+  const MAX_BUBBLE_LENGTH = 160;
+
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+
+  function typingDuration(text) {
+    return Math.min(TYPING_MAX_MS, Math.max(TYPING_MIN_MS, text.length * TYPING_MS_PER_CHAR));
+  }
+
+  /* Découpe un message en bulles : d'abord sur les sauts de ligne,
+     puis les paragraphes trop longs sont regroupés par phrases. */
+  function splitIntoBubbles(text) {
+    const bubbles = [];
+    for (const para of text.split(/\n+/)) {
+      const trimmed = para.trim();
+      if (!trimmed) continue;
+      if (trimmed.length <= MAX_BUBBLE_LENGTH) {
+        bubbles.push(trimmed);
+        continue;
+      }
+      const sentences = trimmed.match(/[^.!?…]+[.!?…]+["»]?\s*|[^.!?…]+$/g) || [trimmed];
+      let current = "";
+      for (const sentence of sentences) {
+        if (current && (current + sentence).length > MAX_BUBBLE_LENGTH) {
+          bubbles.push(current.trim());
+          current = "";
+        }
+        current += sentence;
+      }
+      if (current.trim()) bubbles.push(current.trim());
+    }
+    return bubbles.length ? bubbles : [text];
+  }
+
+  /* Affiche un message de Kia bulle par bulle, avec frappe simulée. */
+  async function playKiaText(text) {
+    for (const bubble of splitIntoBubbles(text)) {
+      const typingEl = showTyping();
+      await wait(typingDuration(bubble));
+      typingEl.remove();
+      addKiaMessage(bubble);
+      await wait(PAUSE_BETWEEN_BUBBLES_MS);
+    }
+  }
+
   /* ---------- Rendu ---------- */
 
   function scrollDown() {
@@ -97,21 +148,22 @@
   function playScriptedActions(actions) {
     busy = true;
     quickEl.innerHTML = "";
-    let delay = 0;
-    actions.forEach((action, i) => {
-      delay += action.type === "text" ? 650 : 450;
-      setTimeout(() => {
-        const typingEl = action.type !== "options" ? showTyping() : null;
-        setTimeout(() => {
-          if (typingEl) typingEl.remove();
-          if (action.type === "text") addKiaMessage(action.text);
-          else if (action.type === "cards") action.items.forEach((r) => addCard(r.listing, r.reasons, r.score));
-          else if (action.type === "options") showQuickReplies(action.options);
-          if (i === actions.length - 1) busy = false;
-        }, typingEl ? 500 : 0);
-      }, delay);
-      delay += 500;
-    });
+    (async () => {
+      for (const action of actions) {
+        if (action.type === "text") {
+          await playKiaText(action.text);
+        } else if (action.type === "cards") {
+          for (const r of action.items) {
+            addCard(r.listing, r.reasons, r.score);
+            await wait(400);
+          }
+        } else if (action.type === "options") {
+          await wait(250);
+          showQuickReplies(action.options);
+        }
+      }
+      busy = false;
+    })();
   }
 
   function respondScripted(value, isFreeText) {
@@ -124,6 +176,9 @@
     busy = true;
     quickEl.innerHTML = "";
     history.push({ role: "user", content: text });
+    // L'indicateur de frappe apparaît après un court instant, comme si
+    // Kia lisait le message avant de répondre.
+    await wait(350);
     const typingEl = showTyping();
     try {
       const res = await fetch("/api/chat", {
@@ -135,13 +190,16 @@
       const data = await res.json();
       typingEl.remove();
 
-      addKiaMessage(data.message);
+      await playKiaText(data.message);
       history.push({ role: "assistant", content: JSON.stringify(data) });
 
-      (data.recommendations || []).forEach((id) => {
+      for (const id of data.recommendations || []) {
         const listing = LISTINGS.find((l) => l.id === id);
-        if (listing) addCard(listing, null, null);
-      });
+        if (listing) {
+          addCard(listing, null, null);
+          await wait(400);
+        }
+      }
       if (data.suggestions && data.suggestions.length) {
         showQuickReplies(data.suggestions.map((s) => ({ label: s, value: s })));
       }
@@ -170,17 +228,16 @@
     history = [];
     if (aiMode) {
       busy = true;
-      const typingEl = showTyping();
-      setTimeout(() => {
-        typingEl.remove();
-        addKiaMessage("Bonjour et bienvenue chez Love Explorer ! 💕 Je suis Kia, votre assistante personnelle.\nRacontez-moi : quelle escapade en amoureux avez-vous en tête ?");
+      (async () => {
+        await wait(500);
+        await playKiaText("Bonjour et bienvenue chez Love Explorer ! 💕 Je suis Kia, votre assistante personnelle.\nRacontez-moi : quelle escapade en amoureux avez-vous en tête ?");
         showQuickReplies([
           { label: "💍 Une demande en mariage", value: "Je prépare une demande en mariage" },
           { label: "🎂 Un anniversaire", value: "C'est pour notre anniversaire de couple" },
           { label: "✨ Juste envie de nous deux", value: "On a juste envie d'une escapade en amoureux" },
         ]);
         busy = false;
-      }, 900);
+      })();
     } else {
       Kia.reset();
       playScriptedActions(Kia.greeting());
