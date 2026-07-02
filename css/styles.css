@@ -1,20 +1,32 @@
-/* ═══════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════
    Kia — fenêtre de conversation Love Explorer
-   (widget autonome, à intégrer via iframe)
-   ═══════════════════════════════════════════ */
+   Design premium : noir prune, or champagne, rose poudré,
+   typographie éditoriale Fraunces, grain photographique.
+   ═══════════════════════════════════════════════════════ */
 
 :root {
-  --bg: #16060e;
-  --bg-soft: #22101b;
-  --surface: #2b1522;
-  --rose: #e85d8a;
-  --rose-soft: #f4a3bd;
-  --gold: #d9a558;
-  --cream: #f7ede4;
-  --muted: #b99aa8;
-  --shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
-  --font-display: "Cormorant Garamond", serif;
+  /* Palette */
+  --noir: #0c0409;
+  --panel-1: #1a0a12;
+  --panel-2: #120610;
+  --surface: #241019;
+  --surface-2: #2c1420;
+  --rose: #e0577f;
+  --rose-deep: #b23a60;
+  --rose-soft: #f2a9bd;
+  --gold: #d4ab72;
+  --gold-soft: #ecd2ab;
+  --cream: #f7eee4;
+  --muted: #a98d9b;
+
+  /* Filigranes */
+  --hairline-gold: linear-gradient(135deg, rgba(212, 171, 114, 0.55), rgba(224, 87, 127, 0.35) 45%, rgba(212, 171, 114, 0.15));
+  --hairline-soft: rgba(224, 87, 127, 0.16);
+
+  --font-display: "Fraunces", Georgia, serif;
   --font-body: "Outfit", sans-serif;
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -23,136 +35,266 @@ html, body { height: 100%; }
 
 body {
   font-family: var(--font-body);
-  background: var(--bg);
+  font-weight: 300;
+  background:
+    radial-gradient(1000px 700px at 50% -10%, #200b17, transparent 60%),
+    var(--noir);
   color: var(--cream);
-  line-height: 1.6;
+  line-height: 1.65;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
-.backdrop-glow {
-  position: fixed; inset: 0; pointer-events: none;
-  background:
-    radial-gradient(600px 400px at 50% 0%, rgba(232, 93, 138, 0.18), transparent 70%),
-    radial-gradient(500px 350px at 85% 90%, rgba(217, 165, 88, 0.08), transparent 70%);
+/* ── Ambiance : orbes + grain ── */
+.ambient { position: fixed; inset: 0; pointer-events: none; overflow: hidden; }
+.orb {
+  position: absolute; border-radius: 50%; filter: blur(70px); opacity: 0.5;
+  animation: drift 22s ease-in-out infinite alternate;
+}
+.orb-1 { width: 420px; height: 420px; top: -12%; left: 8%; background: radial-gradient(circle, rgba(224, 87, 127, 0.22), transparent 70%); }
+.orb-2 { width: 340px; height: 340px; bottom: -10%; right: 4%; background: radial-gradient(circle, rgba(212, 171, 114, 0.14), transparent 70%); animation-delay: -8s; }
+.orb-3 { width: 260px; height: 260px; top: 45%; left: -8%; background: radial-gradient(circle, rgba(178, 58, 96, 0.16), transparent 70%); animation-delay: -15s; }
+@keyframes drift {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to   { transform: translate3d(40px, -30px, 0) scale(1.12); }
 }
 
-/* ── Fenêtre de chat ── */
+.grain {
+  position: fixed; inset: 0; pointer-events: none; z-index: 40; opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E");
+}
+
+/* ══ Fenêtre ══ */
 .kia-panel {
-  position: relative; z-index: 1;
+  position: relative; z-index: 10;
   width: min(460px, 100vw);
-  height: min(720px, 100vh);
-  background: var(--bg-soft);
-  border: 1px solid rgba(232, 93, 138, 0.22);
-  border-radius: 22px;
-  box-shadow: var(--shadow);
+  height: min(730px, 100vh);
   display: flex; flex-direction: column; overflow: hidden;
+  border-radius: 26px;
+  border: 1px solid transparent;
+  background:
+    linear-gradient(168deg, var(--panel-1), var(--panel-2) 65%) padding-box,
+    var(--hairline-gold) border-box;
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.6),
+    0 0 120px rgba(224, 87, 127, 0.07);
 }
-@media (max-width: 480px), (max-height: 740px) {
+@media (max-width: 480px), (max-height: 750px) {
   .kia-panel { width: 100vw; height: 100vh; height: 100dvh; border-radius: 0; border: none; }
 }
 
+/* ── En-tête ── */
 .kia-header {
-  display: flex; align-items: center; gap: 12px;
-  padding: 15px 18px;
-  background: linear-gradient(135deg, rgba(232, 93, 138, 0.22), rgba(217, 165, 88, 0.10));
-  border-bottom: 1px solid rgba(232, 93, 138, 0.16);
+  display: flex; align-items: center; gap: 14px;
+  padding: 18px 20px 16px;
+  position: relative;
 }
+.kia-header::after {
+  content: ""; position: absolute; left: 20px; right: 20px; bottom: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212, 171, 114, 0.4), rgba(224, 87, 127, 0.3), transparent);
+}
+
 .kia-avatar {
-  width: 44px; height: 44px; border-radius: 50%;
-  background: linear-gradient(135deg, var(--rose), #c2416d);
+  position: relative;
+  width: 48px; height: 48px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  font-family: var(--font-display); font-size: 1.4rem; font-weight: 700; color: #fff;
-  box-shadow: 0 4px 14px rgba(232, 93, 138, 0.4);
+  background: linear-gradient(140deg, var(--rose), var(--rose-deep));
+  box-shadow: 0 6px 18px rgba(224, 87, 127, 0.35);
 }
-.kia-identity { flex: 1; display: flex; flex-direction: column; }
-.kia-identity strong { font-size: 1.08rem; }
-.brand-mark { color: var(--rose); }
-.kia-status { font-size: 0.76rem; color: var(--muted); display: flex; align-items: center; gap: 6px; }
-.kia-status .dot { width: 7px; height: 7px; border-radius: 50%; background: #6fdc8c; }
+.kia-avatar span {
+  font-family: var(--font-display); font-style: italic; font-weight: 500;
+  font-size: 1.5rem; color: #fff; transform: translateY(-1px);
+}
+.kia-avatar::before {
+  content: ""; position: absolute; inset: -4px; border-radius: 50%;
+  background: conic-gradient(from 0deg, transparent 10%, rgba(212, 171, 114, 0.7), transparent 45%);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 1.5px), #000 calc(100% - 1.5px));
+          mask: radial-gradient(farthest-side, transparent calc(100% - 1.5px), #000 calc(100% - 1.5px));
+  animation: halo 5s linear infinite;
+}
+@keyframes halo { to { transform: rotate(360deg); } }
+
+.kia-identity { flex: 1; display: flex; flex-direction: column; gap: 1px; }
+.kia-identity strong {
+  font-family: var(--font-display); font-weight: 500;
+  font-size: 1.35rem; letter-spacing: 0.02em; line-height: 1.2;
+}
+.fleuron { color: var(--gold); font-size: 0.85em; font-style: normal; }
+.kia-status {
+  font-size: 0.72rem; font-weight: 400; color: var(--muted);
+  display: flex; align-items: center; gap: 7px;
+  text-transform: uppercase; letter-spacing: 0.14em;
+}
+.kia-status .dot {
+  width: 6px; height: 6px; border-radius: 50%; background: #7fe0a0;
+  box-shadow: 0 0 0 0 rgba(127, 224, 160, 0.5);
+  animation: pulse 2.4s ease-out infinite;
+}
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(127, 224, 160, 0.5); }
+  70% { box-shadow: 0 0 0 6px rgba(127, 224, 160, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(127, 224, 160, 0); }
+}
 .kia-mode {
-  font-size: 0.66rem; padding: 2px 8px; border-radius: 999px;
-  background: rgba(217, 165, 88, 0.15); color: var(--gold); letter-spacing: 0.5px;
+  font-size: 0.62rem; padding: 2.5px 9px; border-radius: 999px;
+  border: 1px solid rgba(212, 171, 114, 0.35);
+  color: var(--gold-soft); letter-spacing: 0.12em;
 }
 .kia-mode:empty { display: none; }
+
 .kia-restart {
-  background: rgba(255,255,255,0.07); border: none; color: var(--cream);
-  width: 34px; height: 34px; border-radius: 50%; cursor: pointer; font-size: 1rem;
-  transition: background 0.2s;
+  width: 36px; height: 36px; border-radius: 50%; cursor: pointer;
+  border: 1px solid rgba(247, 238, 228, 0.12);
+  background: rgba(247, 238, 228, 0.04); color: var(--muted);
+  display: flex; align-items: center; justify-content: center;
+  transition: color 0.25s, border-color 0.25s, transform 0.4s var(--ease-out);
 }
-.kia-restart:hover { background: rgba(255,255,255,0.16); }
+.kia-restart svg { width: 16px; height: 16px; }
+.kia-restart:hover { color: var(--gold-soft); border-color: rgba(212, 171, 114, 0.4); transform: rotate(-180deg); }
 
-/* ── Messages ── */
+/* ── Fil de messages ── */
 .kia-messages {
-  flex: 1; overflow-y: auto; padding: 18px 16px 8px;
-  display: flex; flex-direction: column; gap: 12px;
+  flex: 1; overflow-y: auto; padding: 22px 18px 10px;
+  display: flex; flex-direction: column; gap: 13px;
+  scrollbar-width: thin; scrollbar-color: rgba(212, 171, 114, 0.25) transparent;
 }
-.kia-messages::-webkit-scrollbar { width: 6px; }
-.kia-messages::-webkit-scrollbar-thumb { background: rgba(232, 93, 138, 0.3); border-radius: 3px; }
+.kia-messages::-webkit-scrollbar { width: 5px; }
+.kia-messages::-webkit-scrollbar-thumb { background: rgba(212, 171, 114, 0.25); border-radius: 3px; }
 
-.msg { max-width: 84%; flex-shrink: 0; padding: 11px 15px; border-radius: 16px; font-size: 0.93rem; animation: msgIn 0.25s ease; white-space: pre-line; }
-@keyframes msgIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
-.msg-kia { align-self: flex-start; background: var(--surface); border-bottom-left-radius: 5px; }
-.msg-user {
-  align-self: flex-end; border-bottom-right-radius: 5px;
-  background: linear-gradient(135deg, var(--rose), #c2416d); color: #fff;
+.msg {
+  max-width: 84%; flex-shrink: 0;
+  padding: 12px 16px; border-radius: 18px;
+  font-size: 0.93rem; font-weight: 300; white-space: pre-line;
+  animation: msgIn 0.5s var(--ease-out);
 }
-.msg-typing { display: flex; gap: 5px; padding: 14px 16px; }
+@keyframes msgIn {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to   { opacity: 1; transform: none; }
+}
+.msg-kia {
+  align-self: flex-start; border-bottom-left-radius: 6px;
+  background: linear-gradient(160deg, var(--surface), var(--surface-2));
+  border: 1px solid rgba(247, 238, 228, 0.06);
+}
+.msg-user {
+  align-self: flex-end; border-bottom-right-radius: 6px;
+  background: linear-gradient(135deg, var(--rose), var(--rose-deep));
+  color: #fff; font-weight: 400;
+  box-shadow: 0 8px 22px rgba(224, 87, 127, 0.22);
+}
+.msg-typing { display: flex; gap: 5px; padding: 15px 17px; }
 .msg-typing i {
-  width: 7px; height: 7px; border-radius: 50%; background: var(--rose-soft);
+  width: 6px; height: 6px; border-radius: 50%; background: var(--gold-soft);
   animation: blink 1.2s infinite;
 }
 .msg-typing i:nth-child(2) { animation-delay: 0.2s; }
 .msg-typing i:nth-child(3) { animation-delay: 0.4s; }
-@keyframes blink { 0%, 60%, 100% { opacity: 0.25; } 30% { opacity: 1; } }
+@keyframes blink { 0%, 60%, 100% { opacity: 0.2; } 30% { opacity: 1; } }
 
 /* ── Cartes de recommandation ── */
 .msg-card {
-  align-self: flex-start; width: 92%; flex-shrink: 0;
-  background: var(--surface); border: 1px solid rgba(217, 165, 88, 0.25);
-  border-radius: 16px; overflow: hidden; animation: msgIn 0.3s ease;
+  align-self: flex-start; width: 94%; flex-shrink: 0;
+  border-radius: 18px; overflow: hidden;
+  border: 1px solid transparent;
+  background:
+    linear-gradient(160deg, var(--surface), var(--surface-2)) padding-box,
+    var(--hairline-gold) border-box;
+  animation: msgIn 0.6s var(--ease-out);
+  transition: transform 0.35s var(--ease-out), box-shadow 0.35s;
 }
-.msg-card-visual { height: 88px; display: flex; align-items: center; justify-content: center; font-size: 2.3rem; }
-.msg-card-body { padding: 12px 15px 15px; }
-.msg-card-body h4 { font-family: var(--font-display); font-size: 1.18rem; margin-bottom: 2px; }
-.msg-card-loc { font-size: 0.77rem; color: var(--muted); margin-bottom: 7px; }
-.msg-card-pitch { font-size: 0.8rem; color: var(--rose-soft); margin-bottom: 9px; }
-.msg-card-foot { display: flex; align-items: center; justify-content: space-between; }
-.msg-card-foot strong { color: var(--gold); font-size: 0.98rem; }
+.msg-card:hover { transform: translateY(-3px); box-shadow: 0 14px 34px rgba(0, 0, 0, 0.4); }
+.msg-card-visual {
+  height: 92px; position: relative;
+  display: flex; align-items: center; justify-content: center; font-size: 2.4rem;
+}
+.msg-card-visual::after {
+  content: ""; position: absolute; inset: 0;
+  background: radial-gradient(240px 70px at 50% 110%, rgba(12, 4, 9, 0.55), transparent);
+}
+.msg-card-body { padding: 14px 17px 16px; }
+.msg-card-body h4 {
+  font-family: var(--font-display); font-weight: 500;
+  font-size: 1.22rem; letter-spacing: 0.01em; margin-bottom: 3px;
+}
+.msg-card-loc {
+  font-size: 0.7rem; color: var(--muted); margin-bottom: 8px;
+  text-transform: uppercase; letter-spacing: 0.12em;
+}
+.msg-card-pitch { font-size: 0.82rem; color: var(--rose-soft); margin-bottom: 11px; font-style: italic; font-family: var(--font-display); font-weight: 400; }
+.msg-card-foot { display: flex; align-items: baseline; justify-content: space-between; }
+.msg-card-foot strong {
+  font-family: var(--font-display); font-weight: 600;
+  color: var(--gold-soft); font-size: 1.08rem;
+}
 .msg-card-foot .match {
-  font-size: 0.72rem; background: rgba(111, 220, 140, 0.14); color: #8ce8a5;
-  padding: 3px 10px; border-radius: 999px;
+  font-size: 0.68rem; letter-spacing: 0.08em;
+  border: 1px solid rgba(127, 224, 160, 0.3);
+  color: #9ceab5; padding: 3px 11px; border-radius: 999px;
 }
 
 /* ── Réponses rapides ── */
 .kia-quick {
-  display: flex; flex-wrap: wrap; gap: 8px; padding: 6px 16px 10px;
+  display: flex; flex-wrap: wrap; gap: 8px; padding: 8px 18px 12px;
 }
 .kia-quick:empty { padding: 0; }
 .kia-quick button {
-  background: rgba(232, 93, 138, 0.12); color: var(--rose-soft);
-  border: 1px solid rgba(232, 93, 138, 0.35); border-radius: 999px;
-  padding: 7px 15px; font-size: 0.83rem; cursor: pointer; font-family: var(--font-body);
-  transition: background 0.15s, transform 0.15s;
+  border: 1px solid var(--hairline-soft);
+  background: rgba(224, 87, 127, 0.06); color: var(--rose-soft);
+  border-radius: 999px; padding: 8px 16px;
+  font-size: 0.83rem; font-weight: 400; font-family: var(--font-body);
+  cursor: pointer; animation: msgIn 0.5s var(--ease-out);
+  transition: background 0.25s, border-color 0.25s, color 0.25s, transform 0.25s var(--ease-out);
 }
-.kia-quick button:hover { background: rgba(232, 93, 138, 0.28); transform: translateY(-1px); }
+.kia-quick button:hover {
+  background: rgba(224, 87, 127, 0.16); border-color: rgba(224, 87, 127, 0.45);
+  color: #fff; transform: translateY(-1px);
+}
 
 /* ── Saisie ── */
 .kia-input {
-  display: flex; gap: 10px; padding: 12px 14px;
-  border-top: 1px solid rgba(232, 93, 138, 0.14);
+  display: flex; gap: 10px; padding: 14px 16px 12px;
+  position: relative;
+}
+.kia-input::before {
+  content: ""; position: absolute; left: 20px; right: 20px; top: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212, 171, 114, 0.3), transparent);
 }
 .kia-input input {
-  flex: 1; background: var(--surface); border: 1px solid rgba(232, 93, 138, 0.2);
-  border-radius: 999px; padding: 12px 18px; color: var(--cream);
-  font-family: var(--font-body); font-size: 0.93rem; outline: none;
+  flex: 1; padding: 13px 20px; border-radius: 999px; outline: none;
+  background: rgba(247, 238, 228, 0.045);
+  border: 1px solid rgba(247, 238, 228, 0.1);
+  color: var(--cream); font-family: var(--font-body); font-weight: 300; font-size: 0.93rem;
+  transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
 }
-.kia-input input:focus { border-color: var(--rose); }
+.kia-input input::placeholder { color: rgba(169, 141, 155, 0.75); }
+.kia-input input:focus {
+  border-color: rgba(224, 87, 127, 0.5);
+  background: rgba(247, 238, 228, 0.06);
+  box-shadow: 0 0 0 4px rgba(224, 87, 127, 0.1);
+}
 .kia-input button {
-  width: 46px; height: 46px; border-radius: 50%; border: none; cursor: pointer;
-  background: linear-gradient(135deg, var(--rose), #c2416d); color: #fff; font-size: 1rem;
-  transition: transform 0.15s;
+  width: 48px; height: 48px; border-radius: 50%; border: none; cursor: pointer;
+  background: linear-gradient(135deg, var(--rose), var(--rose-deep));
+  color: #fff; display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 8px 20px rgba(224, 87, 127, 0.3);
+  transition: transform 0.3s var(--ease-out), box-shadow 0.3s;
 }
-.kia-input button:hover { transform: scale(1.06); }
+.kia-input button svg { width: 18px; height: 18px; transform: translateX(-1px); }
+.kia-input button:hover { transform: scale(1.08); box-shadow: 0 10px 26px rgba(224, 87, 127, 0.45); }
+.kia-input button:active { transform: scale(0.96); }
+
+/* ── Signature ── */
+.kia-foot {
+  text-align: center; padding: 0 0 11px;
+  font-family: var(--font-display); font-style: italic; font-weight: 400;
+  font-size: 0.72rem; letter-spacing: 0.06em; color: rgba(212, 171, 114, 0.55);
+}
+
+/* ── Accessibilité : réduire les animations ── */
+@media (prefers-reduced-motion: reduce) {
+  .orb, .kia-avatar::before, .kia-status .dot { animation: none; }
+  .msg, .msg-card, .kia-quick button { animation-duration: 0.01s; }
+}

@@ -8,23 +8,34 @@
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' font-size='90'%3E💗%3C/text%3E%3C/svg%3E" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
-  <div class="backdrop-glow"></div>
+
+  <!-- Ambiance : orbes flottants + grain -->
+  <div class="ambient">
+    <span class="orb orb-1"></span>
+    <span class="orb orb-2"></span>
+    <span class="orb orb-3"></span>
+  </div>
+  <div class="grain"></div>
 
   <main class="kia-panel" id="kia-panel">
     <header class="kia-header">
-      <div class="kia-avatar">K</div>
+      <div class="kia-avatar"><span>K</span></div>
       <div class="kia-identity">
-        <strong>Kia <span class="brand-mark">❦</span></strong>
+        <strong>Kia <em class="fleuron">❦</em></strong>
         <span class="kia-status">
-          <span class="dot"></span> Assistante Love Explorer
+          <span class="dot"></span> Assistante Love&nbsp;Explorer
           <span class="kia-mode" id="kia-mode" title="Mode de conversation"></span>
         </span>
       </div>
-      <button class="kia-restart" id="kia-restart" title="Recommencer la conversation">↺</button>
+      <button class="kia-restart" id="kia-restart" title="Recommencer la conversation" aria-label="Recommencer">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M3 12a9 9 0 1 0 2.6-6.3" /><path d="M3 4v5h5" />
+        </svg>
+      </button>
     </header>
 
     <div class="kia-messages" id="kia-messages"></div>
@@ -32,8 +43,14 @@
 
     <form class="kia-input" id="kia-form">
       <input type="text" id="kia-text" placeholder="Écrivez à Kia…" autocomplete="off" />
-      <button type="submit" aria-label="Envoyer">➤</button>
+      <button type="submit" aria-label="Envoyer">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M22 2 11 13" /><path d="M22 2 15 22l-4-9-9-4Z" />
+        </svg>
+      </button>
     </form>
+
+    <footer class="kia-foot">L'amour mérite une belle adresse</footer>
   </main>
 
   <script src="js/data.js"></script>
