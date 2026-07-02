@@ -1,18 +1,17 @@
 /* ═══════════════════════════════════════════
-   Love Explorer — thème romantique
+   Kia — fenêtre de conversation Love Explorer
+   (widget autonome, à intégrer via iframe)
    ═══════════════════════════════════════════ */
 
 :root {
   --bg: #16060e;
   --bg-soft: #22101b;
   --surface: #2b1522;
-  --surface-2: #351c2b;
   --rose: #e85d8a;
   --rose-soft: #f4a3bd;
   --gold: #d9a558;
   --cream: #f7ede4;
   --muted: #b99aa8;
-  --radius: 18px;
   --shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
   --font-display: "Cormorant Garamond", serif;
   --font-body: "Outfit", sans-serif;
@@ -20,204 +19,40 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
-html { scroll-behavior: smooth; }
+html, body { height: 100%; }
 
 body {
   font-family: var(--font-body);
   background: var(--bg);
   color: var(--cream);
   line-height: 1.6;
-  overflow-x: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 }
 
-h1, h2, h3 { font-family: var(--font-display); font-weight: 600; line-height: 1.15; }
-
-a { color: inherit; text-decoration: none; }
-
-/* ── Boutons ── */
-.btn {
-  display: inline-flex; align-items: center; gap: 8px;
-  border: none; cursor: pointer; font-family: var(--font-body);
-  font-size: 0.95rem; font-weight: 500; border-radius: 999px;
-  padding: 12px 26px; transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.2s;
-}
-.btn:hover { transform: translateY(-2px); }
-.btn-primary {
-  background: linear-gradient(135deg, var(--rose), #c2416d);
-  color: #fff; box-shadow: 0 8px 24px rgba(232, 93, 138, 0.35);
-}
-.btn-outline {
-  background: transparent; color: var(--rose-soft);
-  border: 1px solid rgba(232, 93, 138, 0.5);
-}
-.btn-ghost { background: rgba(255,255,255,0.06); color: var(--cream); }
-.btn-lg { padding: 15px 32px; font-size: 1.05rem; }
-
-/* ── Header ── */
-.site-header {
-  position: sticky; top: 0; z-index: 50;
-  backdrop-filter: blur(14px);
-  background: rgba(22, 6, 14, 0.75);
-  border-bottom: 1px solid rgba(232, 93, 138, 0.12);
-}
-.header-inner {
-  max-width: 1180px; margin: 0 auto; padding: 14px 24px;
-  display: flex; align-items: center; justify-content: space-between;
-}
-.brand { display: flex; align-items: center; gap: 10px; }
-.brand-mark { color: var(--rose); font-size: 1.6rem; }
-.brand-name { font-family: var(--font-display); font-size: 1.45rem; font-weight: 700; letter-spacing: 0.5px; }
-.brand-name em { color: var(--rose-soft); font-style: italic; }
-.site-nav { display: flex; align-items: center; gap: 26px; font-size: 0.92rem; }
-.site-nav a { color: var(--muted); transition: color 0.2s; }
-.site-nav a:hover { color: var(--cream); }
-
-/* ── Hero ── */
-.hero {
-  position: relative; text-align: center;
-  padding: 110px 24px 90px;
-}
-.hero-glow {
-  position: absolute; inset: 0; pointer-events: none;
+.backdrop-glow {
+  position: fixed; inset: 0; pointer-events: none;
   background:
-    radial-gradient(600px 350px at 50% 0%, rgba(232, 93, 138, 0.22), transparent 70%),
-    radial-gradient(500px 300px at 85% 60%, rgba(217, 165, 88, 0.10), transparent 70%);
-}
-.hero-content { position: relative; max-width: 780px; margin: 0 auto; }
-.hero-eyebrow {
-  text-transform: uppercase; letter-spacing: 4px; font-size: 0.78rem;
-  color: var(--gold); margin-bottom: 18px;
-}
-.hero h1 { font-size: clamp(2.6rem, 6vw, 4.4rem); }
-.hero .accent {
-  background: linear-gradient(120deg, var(--rose-soft), var(--rose));
-  -webkit-background-clip: text; background-clip: text; color: transparent;
-  font-style: italic;
-}
-.hero-sub { margin: 22px auto 34px; max-width: 620px; color: var(--muted); font-size: 1.08rem; }
-.hero-actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
-.hero-stats {
-  margin-top: 56px; display: flex; justify-content: center; gap: 54px; flex-wrap: wrap;
-}
-.hero-stats strong { display: block; font-family: var(--font-display); font-size: 1.9rem; color: var(--rose-soft); }
-.hero-stats span { font-size: 0.85rem; color: var(--muted); }
-
-/* ── Sections ── */
-.section { padding: 80px 24px; max-width: 1180px; margin: 0 auto; }
-.section-alt {
-  max-width: none;
-  background: linear-gradient(180deg, transparent, rgba(232, 93, 138, 0.05), transparent);
-}
-.section-alt > * { max-width: 1180px; margin-left: auto; margin-right: auto; }
-.section-head { text-align: center; margin-bottom: 46px; }
-.section-head h2 { font-size: clamp(1.9rem, 4vw, 2.7rem); }
-.section-head p { color: var(--muted); margin-top: 10px; }
-
-/* ── Cartes logements ── */
-.listings-grid {
-  display: grid; gap: 26px;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-}
-.listing-card {
-  background: var(--surface); border-radius: var(--radius); overflow: hidden;
-  border: 1px solid rgba(232, 93, 138, 0.12);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-.listing-card:hover { transform: translateY(-5px); box-shadow: var(--shadow); }
-.listing-visual {
-  height: 180px; display: flex; align-items: center; justify-content: center;
-  font-size: 3.4rem; position: relative;
-}
-.listing-badge {
-  position: absolute; top: 12px; left: 12px;
-  background: rgba(22, 6, 14, 0.72); backdrop-filter: blur(6px);
-  border-radius: 999px; padding: 5px 13px; font-size: 0.74rem;
-  letter-spacing: 0.5px; color: var(--rose-soft);
-}
-.listing-body { padding: 20px 22px 24px; }
-.listing-body h3 { font-size: 1.35rem; margin-bottom: 4px; }
-.listing-loc { color: var(--muted); font-size: 0.86rem; margin-bottom: 12px; }
-.listing-tags { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 16px; }
-.listing-tags span {
-  font-size: 0.72rem; padding: 4px 11px; border-radius: 999px;
-  background: rgba(232, 93, 138, 0.12); color: var(--rose-soft);
-}
-.listing-foot { display: flex; align-items: baseline; justify-content: space-between; }
-.listing-price strong { font-size: 1.25rem; color: var(--gold); }
-.listing-price span { font-size: 0.8rem; color: var(--muted); }
-.listing-rating { font-size: 0.86rem; color: var(--rose-soft); }
-
-/* ── Expériences ── */
-.experiences-grid {
-  display: grid; gap: 22px;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-}
-.exp-card {
-  background: var(--surface); border-radius: var(--radius);
-  padding: 30px 26px; text-align: center;
-  border: 1px solid rgba(217, 165, 88, 0.14);
-}
-.exp-icon { font-size: 2.4rem; display: block; margin-bottom: 14px; }
-.exp-card h3 { font-size: 1.25rem; margin-bottom: 8px; }
-.exp-card p { color: var(--muted); font-size: 0.9rem; }
-
-/* ── À propos ── */
-.about { display: grid; grid-template-columns: 1.3fr 0.7fr; gap: 50px; align-items: center; }
-.about-text h2 { font-size: clamp(1.9rem, 4vw, 2.6rem); margin-bottom: 18px; }
-.about-text p { color: var(--muted); margin-bottom: 16px; }
-.about-text .btn { margin-top: 8px; }
-.about-visual { display: flex; justify-content: center; }
-.about-heart {
-  font-size: 9rem; color: var(--rose);
-  filter: drop-shadow(0 0 45px rgba(232, 93, 138, 0.5));
-  animation: heartbeat 2.6s ease-in-out infinite;
-}
-@keyframes heartbeat {
-  0%, 100% { transform: scale(1); }
-  12% { transform: scale(1.08); }
-  24% { transform: scale(1); }
+    radial-gradient(600px 400px at 50% 0%, rgba(232, 93, 138, 0.18), transparent 70%),
+    radial-gradient(500px 350px at 85% 90%, rgba(217, 165, 88, 0.08), transparent 70%);
 }
 
-/* ── Footer ── */
-.site-footer {
-  border-top: 1px solid rgba(232, 93, 138, 0.12);
-  text-align: center; padding: 34px 24px; color: var(--muted); font-size: 0.88rem;
-}
-
-/* ═══════════════ WIDGET KIA ═══════════════ */
-.kia-launcher {
-  position: fixed; bottom: 26px; right: 26px; z-index: 90;
-  width: 64px; height: 64px; border-radius: 50%; border: none; cursor: pointer;
-  background: linear-gradient(135deg, var(--rose), #c2416d);
-  box-shadow: 0 12px 30px rgba(232, 93, 138, 0.45);
-  display: flex; align-items: center; justify-content: center;
-  transition: transform 0.2s;
-}
-.kia-launcher:hover { transform: scale(1.08); }
-.kia-launcher-icon { font-size: 1.7rem; }
-.kia-launcher-pulse {
-  position: absolute; inset: 0; border-radius: 50%;
-  border: 2px solid rgba(232, 93, 138, 0.55);
-  animation: pulse 2.2s ease-out infinite;
-}
-@keyframes pulse {
-  0% { transform: scale(1); opacity: 1; }
-  100% { transform: scale(1.55); opacity: 0; }
-}
-body.kia-open .kia-launcher { display: none; }
-
+/* ── Fenêtre de chat ── */
 .kia-panel {
-  position: fixed; bottom: 26px; right: 26px; z-index: 95;
-  width: min(400px, calc(100vw - 32px));
-  height: min(620px, calc(100vh - 60px));
+  position: relative; z-index: 1;
+  width: min(460px, 100vw);
+  height: min(720px, 100vh);
   background: var(--bg-soft);
   border: 1px solid rgba(232, 93, 138, 0.22);
-  border-radius: 22px; box-shadow: var(--shadow);
+  border-radius: 22px;
+  box-shadow: var(--shadow);
   display: flex; flex-direction: column; overflow: hidden;
-  opacity: 0; pointer-events: none; transform: translateY(18px) scale(0.98);
-  transition: opacity 0.22s ease, transform 0.22s ease;
 }
-body.kia-open .kia-panel { opacity: 1; pointer-events: auto; transform: translateY(0) scale(1); }
+@media (max-width: 480px), (max-height: 740px) {
+  .kia-panel { width: 100vw; height: 100vh; height: 100dvh; border-radius: 0; border: none; }
+}
 
 .kia-header {
   display: flex; align-items: center; gap: 12px;
@@ -226,22 +61,30 @@ body.kia-open .kia-panel { opacity: 1; pointer-events: auto; transform: translat
   border-bottom: 1px solid rgba(232, 93, 138, 0.16);
 }
 .kia-avatar {
-  width: 42px; height: 42px; border-radius: 50%;
+  width: 44px; height: 44px; border-radius: 50%;
   background: linear-gradient(135deg, var(--rose), #c2416d);
   display: flex; align-items: center; justify-content: center;
-  font-family: var(--font-display); font-size: 1.35rem; font-weight: 700; color: #fff;
+  font-family: var(--font-display); font-size: 1.4rem; font-weight: 700; color: #fff;
+  box-shadow: 0 4px 14px rgba(232, 93, 138, 0.4);
 }
 .kia-identity { flex: 1; display: flex; flex-direction: column; }
-.kia-identity strong { font-size: 1.02rem; }
-.kia-status { font-size: 0.75rem; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+.kia-identity strong { font-size: 1.08rem; }
+.brand-mark { color: var(--rose); }
+.kia-status { font-size: 0.76rem; color: var(--muted); display: flex; align-items: center; gap: 6px; }
 .kia-status .dot { width: 7px; height: 7px; border-radius: 50%; background: #6fdc8c; }
-.kia-restart, .kia-close {
+.kia-mode {
+  font-size: 0.66rem; padding: 2px 8px; border-radius: 999px;
+  background: rgba(217, 165, 88, 0.15); color: var(--gold); letter-spacing: 0.5px;
+}
+.kia-mode:empty { display: none; }
+.kia-restart {
   background: rgba(255,255,255,0.07); border: none; color: var(--cream);
-  width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 0.95rem;
+  width: 34px; height: 34px; border-radius: 50%; cursor: pointer; font-size: 1rem;
   transition: background 0.2s;
 }
-.kia-restart:hover, .kia-close:hover { background: rgba(255,255,255,0.16); }
+.kia-restart:hover { background: rgba(255,255,255,0.16); }
 
+/* ── Messages ── */
 .kia-messages {
   flex: 1; overflow-y: auto; padding: 18px 16px 8px;
   display: flex; flex-direction: column; gap: 12px;
@@ -249,7 +92,7 @@ body.kia-open .kia-panel { opacity: 1; pointer-events: auto; transform: translat
 .kia-messages::-webkit-scrollbar { width: 6px; }
 .kia-messages::-webkit-scrollbar-thumb { background: rgba(232, 93, 138, 0.3); border-radius: 3px; }
 
-.msg { max-width: 84%; flex-shrink: 0; padding: 11px 15px; border-radius: 16px; font-size: 0.92rem; animation: msgIn 0.25s ease; }
+.msg { max-width: 84%; flex-shrink: 0; padding: 11px 15px; border-radius: 16px; font-size: 0.93rem; animation: msgIn 0.25s ease; white-space: pre-line; }
 @keyframes msgIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 .msg-kia { align-self: flex-start; background: var(--surface); border-bottom-left-radius: 5px; }
 .msg-user {
@@ -265,17 +108,17 @@ body.kia-open .kia-panel { opacity: 1; pointer-events: auto; transform: translat
 .msg-typing i:nth-child(3) { animation-delay: 0.4s; }
 @keyframes blink { 0%, 60%, 100% { opacity: 0.25; } 30% { opacity: 1; } }
 
-/* Cartes de recommandation dans le chat */
+/* ── Cartes de recommandation ── */
 .msg-card {
   align-self: flex-start; width: 92%; flex-shrink: 0;
   background: var(--surface); border: 1px solid rgba(217, 165, 88, 0.25);
   border-radius: 16px; overflow: hidden; animation: msgIn 0.3s ease;
 }
-.msg-card-visual { height: 84px; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; }
+.msg-card-visual { height: 88px; display: flex; align-items: center; justify-content: center; font-size: 2.3rem; }
 .msg-card-body { padding: 12px 15px 15px; }
-.msg-card-body h4 { font-family: var(--font-display); font-size: 1.15rem; margin-bottom: 2px; }
-.msg-card-loc { font-size: 0.76rem; color: var(--muted); margin-bottom: 7px; }
-.msg-card-why { font-size: 0.8rem; color: var(--rose-soft); margin-bottom: 9px; }
+.msg-card-body h4 { font-family: var(--font-display); font-size: 1.18rem; margin-bottom: 2px; }
+.msg-card-loc { font-size: 0.77rem; color: var(--muted); margin-bottom: 7px; }
+.msg-card-pitch { font-size: 0.8rem; color: var(--rose-soft); margin-bottom: 9px; }
 .msg-card-foot { display: flex; align-items: center; justify-content: space-between; }
 .msg-card-foot strong { color: var(--gold); font-size: 0.98rem; }
 .msg-card-foot .match {
@@ -283,38 +126,33 @@ body.kia-open .kia-panel { opacity: 1; pointer-events: auto; transform: translat
   padding: 3px 10px; border-radius: 999px;
 }
 
+/* ── Réponses rapides ── */
 .kia-quick {
   display: flex; flex-wrap: wrap; gap: 8px; padding: 6px 16px 10px;
 }
+.kia-quick:empty { padding: 0; }
 .kia-quick button {
   background: rgba(232, 93, 138, 0.12); color: var(--rose-soft);
   border: 1px solid rgba(232, 93, 138, 0.35); border-radius: 999px;
-  padding: 7px 15px; font-size: 0.82rem; cursor: pointer; font-family: var(--font-body);
+  padding: 7px 15px; font-size: 0.83rem; cursor: pointer; font-family: var(--font-body);
   transition: background 0.15s, transform 0.15s;
 }
 .kia-quick button:hover { background: rgba(232, 93, 138, 0.28); transform: translateY(-1px); }
 
+/* ── Saisie ── */
 .kia-input {
   display: flex; gap: 10px; padding: 12px 14px;
   border-top: 1px solid rgba(232, 93, 138, 0.14);
 }
 .kia-input input {
   flex: 1; background: var(--surface); border: 1px solid rgba(232, 93, 138, 0.2);
-  border-radius: 999px; padding: 11px 18px; color: var(--cream);
-  font-family: var(--font-body); font-size: 0.92rem; outline: none;
+  border-radius: 999px; padding: 12px 18px; color: var(--cream);
+  font-family: var(--font-body); font-size: 0.93rem; outline: none;
 }
 .kia-input input:focus { border-color: var(--rose); }
 .kia-input button {
-  width: 44px; height: 44px; border-radius: 50%; border: none; cursor: pointer;
+  width: 46px; height: 46px; border-radius: 50%; border: none; cursor: pointer;
   background: linear-gradient(135deg, var(--rose), #c2416d); color: #fff; font-size: 1rem;
+  transition: transform 0.15s;
 }
-
-/* ── Responsive ── */
-@media (max-width: 760px) {
-  .site-nav a { display: none; }
-  .about { grid-template-columns: 1fr; }
-  .about-visual { order: -1; }
-  .about-heart { font-size: 6rem; }
-  .hero { padding: 70px 20px 60px; }
-  .hero-stats { gap: 30px; }
-}
+.kia-input button:hover { transform: scale(1.06); }

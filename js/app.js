@@ -1,69 +1,23 @@
 /* ═══════════════════════════════════════════
-   Love Explorer — UI : catalogue + widget de chat Kia
+   Kia — fenêtre de conversation Love Explorer
+   Deux moteurs :
+   - Mode IA : /api/chat (Vercel + API Claude), conversation libre
+   - Mode guidé : moteur scripté Kia (js/kia.js), sans clé API
+   Le mode est détecté au chargement via GET /api/chat.
    ═══════════════════════════════════════════ */
 
 (() => {
-  /* ---------- Catalogue sur la page ---------- */
-
-  const grid = document.getElementById("listings-grid");
-  grid.innerHTML = LISTINGS.map((l) => `
-    <article class="listing-card" id="listing-${l.id}">
-      <div class="listing-visual" style="background:${l.gradient}">
-        <span>${l.icon}</span>
-        <span class="listing-badge">${l.badge}</span>
-      </div>
-      <div class="listing-body">
-        <h3>${l.name}</h3>
-        <p class="listing-loc">📍 ${l.location}</p>
-        <div class="listing-tags">${l.tags.map((t) => `<span>${t}</span>`).join("")}</div>
-        <div class="listing-foot">
-          <p class="listing-price"><strong>${l.price} €</strong> <span>/ nuit</span></p>
-          <p class="listing-rating">★ ${l.rating} <span style="color:var(--muted)">(${l.reviews})</span></p>
-        </div>
-      </div>
-    </article>
-  `).join("");
-
-  /* ---------- Widget Kia ---------- */
-
-  const panel = document.getElementById("kia-panel");
   const messagesEl = document.getElementById("kia-messages");
   const quickEl = document.getElementById("kia-quick");
+  const modeEl = document.getElementById("kia-mode");
   const form = document.getElementById("kia-form");
   const input = document.getElementById("kia-text");
 
-  let started = false;
+  let aiMode = false;
   let busy = false;
+  let history = []; // historique {role, content} pour le mode IA
 
-  function openChat() {
-    document.body.classList.add("kia-open");
-    panel.setAttribute("aria-hidden", "false");
-    if (!started) {
-      started = true;
-      playActions(Kia.greeting());
-    }
-    input.focus();
-  }
-
-  function closeChat() {
-    document.body.classList.remove("kia-open");
-    panel.setAttribute("aria-hidden", "true");
-  }
-
-  document.getElementById("kia-launcher").addEventListener("click", openChat);
-  document.getElementById("kia-close").addEventListener("click", closeChat);
-  document.getElementById("hero-open-chat").addEventListener("click", openChat);
-  document.getElementById("nav-open-chat").addEventListener("click", openChat);
-  document.getElementById("about-open-chat").addEventListener("click", openChat);
-  document.getElementById("kia-restart").addEventListener("click", () => {
-    if (busy) return;
-    messagesEl.innerHTML = "";
-    quickEl.innerHTML = "";
-    Kia.reset();
-    playActions(Kia.greeting());
-  });
-
-  /* ---------- Rendu des messages ---------- */
+  /* ---------- Rendu ---------- */
 
   function scrollDown() {
     messagesEl.scrollTop = messagesEl.scrollHeight;
@@ -85,32 +39,27 @@
     scrollDown();
   }
 
-  function addCard({ listing, score, reasons }) {
+  function addCard(listing, reasons, score) {
     const el = document.createElement("div");
     el.className = "msg-card";
-    const why = reasons.slice(0, 3).join(" · ");
+    const why = (reasons || []).slice(0, 3).join(" · ");
     el.innerHTML = `
       <div class="msg-card-visual" style="background:${listing.gradient}">${listing.icon}</div>
       <div class="msg-card-body">
         <h4>${listing.name}</h4>
         <p class="msg-card-loc">📍 ${listing.location} — ★ ${listing.rating}</p>
-        ${why ? `<p class="msg-card-why">💡 ${why}</p>` : ""}
+        <p class="msg-card-pitch">${why ? "💡 " + why : listing.pitch}</p>
         <div class="msg-card-foot">
           <strong>${listing.price} € / nuit</strong>
           <span class="match">${matchLabel(score)}</span>
         </div>
       </div>`;
-    el.addEventListener("click", () => {
-      closeChat();
-      const target = document.getElementById(`listing-${listing.id}`);
-      if (target) target.scrollIntoView({ behavior: "smooth", block: "center" });
-    });
-    el.style.cursor = "pointer";
     messagesEl.appendChild(el);
     scrollDown();
   }
 
   function matchLabel(score) {
+    if (score == null) return "Sélection Kia 💘";
     if (score >= 8) return "Match parfait 💘";
     if (score >= 5) return "Très bon match 💖";
     return "Belle option 💗";
@@ -126,7 +75,8 @@
         if (busy) return;
         addUserMessage(opt.label.replace(/^[^\p{L}\p{N}]+\s*/u, ""));
         quickEl.innerHTML = "";
-        respond(opt.value, false);
+        if (aiMode) respondAI(opt.label);
+        else respondScripted(opt.value, false);
       });
       quickEl.appendChild(btn);
     });
@@ -142,21 +92,20 @@
     return el;
   }
 
-  /* Joue les actions de Kia avec un délai naturel entre chaque bulle */
-  function playActions(actions) {
+  /* ---------- Mode guidé (moteur scripté) ---------- */
+
+  function playScriptedActions(actions) {
     busy = true;
     quickEl.innerHTML = "";
     let delay = 0;
     actions.forEach((action, i) => {
-      const thinkTime = action.type === "text" ? 650 : 450;
-      delay += thinkTime;
-      const typing = i === 0 || actions[i - 1].type !== "options";
+      delay += action.type === "text" ? 650 : 450;
       setTimeout(() => {
         const typingEl = action.type !== "options" ? showTyping() : null;
         setTimeout(() => {
           if (typingEl) typingEl.remove();
           if (action.type === "text") addKiaMessage(action.text);
-          else if (action.type === "cards") action.items.forEach(addCard);
+          else if (action.type === "cards") action.items.forEach((r) => addCard(r.listing, r.reasons, r.score));
           else if (action.type === "options") showQuickReplies(action.options);
           if (i === actions.length - 1) busy = false;
         }, typingEl ? 500 : 0);
@@ -165,11 +114,97 @@
     });
   }
 
-  function respond(value, isFreeText) {
-    playActions(Kia.handleInput(value, isFreeText));
+  function respondScripted(value, isFreeText) {
+    playScriptedActions(Kia.handleInput(value, isFreeText));
   }
 
-  /* ---------- Saisie libre ---------- */
+  /* ---------- Mode IA (API Claude via Vercel) ---------- */
+
+  async function respondAI(text) {
+    busy = true;
+    quickEl.innerHTML = "";
+    history.push({ role: "user", content: text });
+    const typingEl = showTyping();
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: history }),
+      });
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      const data = await res.json();
+      typingEl.remove();
+
+      addKiaMessage(data.message);
+      history.push({ role: "assistant", content: JSON.stringify(data) });
+
+      (data.recommendations || []).forEach((id) => {
+        const listing = LISTINGS.find((l) => l.id === id);
+        if (listing) addCard(listing, null, null);
+      });
+      if (data.suggestions && data.suggestions.length) {
+        showQuickReplies(data.suggestions.map((s) => ({ label: s, value: s })));
+      }
+    } catch (err) {
+      typingEl.remove();
+      // L'API ne répond plus : on bascule sur le moteur guidé sans perdre l'utilisateur
+      aiMode = false;
+      setMode(false);
+      addKiaMessage("Petit souci de connexion de mon côté… 🙈 Pas de panique, je continue avec vous en mode guidé !");
+      Kia.reset();
+      playScriptedActions(Kia.greeting());
+      return;
+    }
+    busy = false;
+  }
+
+  /* ---------- Démarrage ---------- */
+
+  function setMode(ai) {
+    modeEl.textContent = ai ? "✦ IA" : "guidé";
+  }
+
+  function startConversation() {
+    messagesEl.innerHTML = "";
+    quickEl.innerHTML = "";
+    history = [];
+    if (aiMode) {
+      busy = true;
+      const typingEl = showTyping();
+      setTimeout(() => {
+        typingEl.remove();
+        addKiaMessage("Bonjour et bienvenue chez Love Explorer ! 💕 Je suis Kia, votre assistante personnelle.\nRacontez-moi : quelle escapade en amoureux avez-vous en tête ?");
+        showQuickReplies([
+          { label: "💍 Une demande en mariage", value: "Je prépare une demande en mariage" },
+          { label: "🎂 Un anniversaire", value: "C'est pour notre anniversaire de couple" },
+          { label: "✨ Juste envie de nous deux", value: "On a juste envie d'une escapade en amoureux" },
+        ]);
+        busy = false;
+      }, 900);
+    } else {
+      Kia.reset();
+      playScriptedActions(Kia.greeting());
+    }
+  }
+
+  async function detectMode() {
+    try {
+      const res = await fetch("/api/chat", { method: "GET" });
+      if (res.ok) {
+        const data = await res.json();
+        aiMode = !!data.ai;
+      }
+    } catch (_) {
+      aiMode = false;
+    }
+    setMode(aiMode);
+    startConversation();
+  }
+
+  document.getElementById("kia-restart").addEventListener("click", () => {
+    if (busy) return;
+    startConversation();
+  });
 
   form.addEventListener("submit", (e) => {
     e.preventDefault();
@@ -178,11 +213,9 @@
     input.value = "";
     addUserMessage(text);
     quickEl.innerHTML = "";
-    respond(text, true);
+    if (aiMode) respondAI(text);
+    else respondScripted(text, true);
   });
 
-  /* Ouverture automatique après 4 s pour engager le visiteur */
-  setTimeout(() => {
-    if (!started && !document.body.classList.contains("kia-open")) openChat();
-  }, 4000);
+  detectMode();
 })();

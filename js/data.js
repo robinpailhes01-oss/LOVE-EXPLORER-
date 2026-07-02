@@ -181,3 +181,8 @@ const LABELS = {
     "partout": "partout en France"
   }
 };
+
+/* Export Node (utilisé par api/chat.js sur Vercel) — ignoré par le navigateur */
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = { LISTINGS, LABELS };
+}

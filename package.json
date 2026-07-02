@@ -1,0 +1,9 @@
+{
+  "name": "kia-love-explorer",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Kia — fenêtre de conversation de l'assistante Love Explorer (chat de qualification romantique)",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.70.0"
+  }
+}
