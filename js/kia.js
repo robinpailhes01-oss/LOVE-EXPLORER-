@@ -204,8 +204,8 @@ const Kia = (() => {
   function greeting() {
     state.stepIndex = 0;
     return [
-      { type: "text", text: "Bonjour et bienvenue chez Love Explorer ! 💕 Je suis Kia, votre assistante personnelle." },
-      { type: "text", text: "En 5 petites questions, je vous trouve LE logement romantique fait pour vous deux." },
+      { type: "text", text: "Bonjour et bienvenue chez Love Explorer ! 💕 Moi, c'est Kia." },
+      { type: "text", text: "Je suis là pour vous trouver la meilleure expérience romantique possible — en 5 petites questions, c'est promis !" },
       { type: "text", text: STEPS.occasion.prompt(state.profile) },
       { type: "options", options: STEPS.occasion.options }
     ];

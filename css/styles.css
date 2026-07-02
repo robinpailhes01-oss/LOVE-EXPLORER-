@@ -164,6 +164,61 @@ body {
 .kia-messages::-webkit-scrollbar { width: 5px; }
 .kia-messages::-webkit-scrollbar-thumb { background: rgba(212, 171, 114, 0.25); border-radius: 3px; }
 
+/* ── Introduction : avatar 3D de Kia ── */
+.kia-intro {
+  flex-shrink: 0; align-self: stretch;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 6px 0 14px; position: relative;
+  animation: msgIn 0.8s var(--ease-out);
+}
+.kia-intro::after {
+  content: ""; position: absolute; left: 15%; right: 15%; bottom: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212, 171, 114, 0.35), transparent);
+}
+.kia-intro-stage {
+  width: 220px; height: 185px;
+  display: flex; align-items: center; justify-content: center;
+}
+.kia-intro-stage canvas { display: block; }
+.kia-intro-stage.fallback .fallback-heart {
+  font-size: 5.5rem; color: var(--rose);
+  filter: drop-shadow(0 0 35px rgba(224, 87, 127, 0.5));
+  animation: fallbackBeat 1.7s ease-in-out infinite;
+}
+@keyframes fallbackBeat {
+  0%, 100% { transform: scale(1); }
+  10% { transform: scale(1.09); }
+  20% { transform: scale(1); }
+  28% { transform: scale(1.05); }
+  38% { transform: scale(1); }
+}
+.kia-intro h2 {
+  font-family: var(--font-display); font-weight: 500; font-style: italic;
+  font-size: 1.7rem; letter-spacing: 0.03em; margin-top: -6px;
+}
+.kia-intro-tagline {
+  font-size: 0.68rem; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 0.22em; margin: 2px 0 12px;
+}
+.kia-voice {
+  display: inline-flex; align-items: center; gap: 8px;
+  border: 1px solid rgba(212, 171, 114, 0.4); border-radius: 999px;
+  background: rgba(212, 171, 114, 0.07); color: var(--gold-soft);
+  padding: 7px 18px; cursor: pointer;
+  font-family: var(--font-body); font-size: 0.8rem; font-weight: 400; letter-spacing: 0.04em;
+  transition: background 0.25s, border-color 0.25s, transform 0.25s var(--ease-out);
+}
+.kia-voice svg { width: 15px; height: 15px; }
+.kia-voice:hover { background: rgba(212, 171, 114, 0.16); border-color: rgba(212, 171, 114, 0.65); transform: translateY(-1px); }
+.kia-voice.speaking {
+  background: rgba(224, 87, 127, 0.14); border-color: rgba(224, 87, 127, 0.5); color: var(--rose-soft);
+  animation: speakingPulse 1.4s ease-in-out infinite;
+}
+@keyframes speakingPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(224, 87, 127, 0.25); }
+  50% { box-shadow: 0 0 0 6px rgba(224, 87, 127, 0); }
+}
+
 .msg {
   max-width: 84%; flex-shrink: 0;
   padding: 12px 16px; border-radius: 18px;

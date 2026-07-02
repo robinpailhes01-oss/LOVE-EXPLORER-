@@ -216,6 +216,59 @@
     busy = false;
   }
 
+  /* ---------- Introduction : avatar 3D + voix de bienvenue ---------- */
+
+  const WELCOME_SPEECH =
+    "Bienvenue chez Love Explorer ! Moi, c'est Kia. Je suis là pour vous trouver la meilleure expérience romantique possible.";
+
+  function speakWelcome(button) {
+    if (!("speechSynthesis" in window)) return;
+    if (speechSynthesis.speaking) {
+      speechSynthesis.cancel();
+      button.classList.remove("speaking");
+      return;
+    }
+    const utterance = new SpeechSynthesisUtterance(WELCOME_SPEECH);
+    utterance.lang = "fr-FR";
+    utterance.rate = 1;
+    utterance.pitch = 1.05;
+    const frVoice = speechSynthesis.getVoices().find((v) => v.lang && v.lang.startsWith("fr"));
+    if (frVoice) utterance.voice = frVoice;
+    utterance.onend = () => button.classList.remove("speaking");
+    button.classList.add("speaking");
+    speechSynthesis.speak(utterance);
+  }
+
+  function addIntro() {
+    const intro = document.createElement("div");
+    intro.className = "kia-intro";
+    intro.innerHTML = `
+      <div class="kia-intro-stage"></div>
+      <h2>Kia</h2>
+      <p class="kia-intro-tagline">Votre conciergerie romantique</p>
+      <button type="button" class="kia-voice">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M11 5 6 9H2v6h4l5 4V5Z" /><path d="M15.5 8.5a5 5 0 0 1 0 7" /><path d="M18.5 5.5a9 9 0 0 1 0 13" />
+        </svg>
+        Écouter Kia
+      </button>`;
+    messagesEl.appendChild(intro);
+
+    const stage = intro.querySelector(".kia-intro-stage");
+    if (!KiaAvatar.mount(stage)) {
+      stage.classList.add("fallback");
+      stage.innerHTML = '<span class="fallback-heart">❦</span>';
+    }
+
+    const voiceBtn = intro.querySelector(".kia-voice");
+    if ("speechSynthesis" in window) {
+      voiceBtn.addEventListener("click", () => speakWelcome(voiceBtn));
+    } else {
+      voiceBtn.style.display = "none";
+    }
+    scrollDown();
+  }
+
   /* ---------- Démarrage ---------- */
 
   function setMode(ai) {
@@ -223,14 +276,16 @@
   }
 
   function startConversation() {
+    if ("speechSynthesis" in window) speechSynthesis.cancel();
     messagesEl.innerHTML = "";
     quickEl.innerHTML = "";
     history = [];
+    addIntro();
     if (aiMode) {
       busy = true;
       (async () => {
         await wait(500);
-        await playKiaText("Bonjour et bienvenue chez Love Explorer ! 💕 Je suis Kia, votre assistante personnelle.\nRacontez-moi : quelle escapade en amoureux avez-vous en tête ?");
+        await playKiaText("Bonjour et bienvenue chez Love Explorer ! 💕 Moi, c'est Kia — je suis là pour vous trouver la meilleure expérience romantique possible.\nRacontez-moi : quelle escapade en amoureux avez-vous en tête ?");
         showQuickReplies([
           { label: "💍 Une demande en mariage", value: "Je prépare une demande en mariage" },
           { label: "🎂 Un anniversaire", value: "C'est pour notre anniversaire de couple" },
