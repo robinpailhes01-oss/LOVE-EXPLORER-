@@ -7,6 +7,10 @@
    ═══════════════════════════════════════════ */
 
 (() => {
+  /* Version affichée en pied de fenêtre — incrémentée à chaque évolution.
+     Permet de vérifier d'un coup d'œil que le déploiement est à jour. */
+  const KIA_VERSION = "1.5";
+
   const messagesEl = document.getElementById("kia-messages");
   const quickEl = document.getElementById("kia-quick");
   const modeEl = document.getElementById("kia-mode");
@@ -356,6 +360,10 @@
     if (aiMode) respondAI(text);
     else respondScripted(text, true);
   });
+
+  const footEl = document.querySelector(".kia-foot");
+  if (footEl) footEl.textContent += " · v" + KIA_VERSION;
+  console.info("Kia Love Explorer — version " + KIA_VERSION);
 
   detectMode();
 })();
