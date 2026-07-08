@@ -252,13 +252,13 @@ const Kia = (() => {
     }
     actions.push({
       type: "text",
-      text: "Un coup de cœur ? Je peux vérifier les disponibilités, ou on recommence avec d'autres envies. 💌"
+      text: "Un coup de cœur ? 💌 Je peux demander à un conseiller Love Explorer de vous recontacter personnellement pour organiser tout cela."
     });
     actions.push({
       type: "options",
       options: [
-        { label: "📅 Vérifier les disponibilités", value: "__book__" },
-        { label: "↺ Recommencer", value: "__restart__" }
+        { label: "✨ Oui, qu'on me recontacte", value: "__book__" },
+        { label: "↺ Voir d'autres options", value: "__restart__" }
       ]
     });
     return actions;
@@ -332,9 +332,20 @@ const Kia = (() => {
 
     if (state.stepIndex < 0) return greeting();
     if (state.done) {
+      // Après les recommandations : si le client exprime le moindre intérêt
+      // en texte libre, on enchaîne directement sur la prise de coordonnées.
+      const interested = isFreeText &&
+        /(oui|ok|d'accord|d accord|parfait|intéress|interess|réserv|reserv|dispo|coup de c[oœ]ur|celui|celle|le premier|la premi|j'adore|j adore|top|nickel|allons|banco|carr[eé]ment|volontiers|go\b|je veux|ça me|ca me|pourquoi pas|super)/i.test(rawValue);
+      if (interested) {
+        state.leadStep = "name";
+        return [
+          { type: "text", text: "Avec grand plaisir ! 🤍" },
+          { type: "text", text: "Pour qu'un conseiller Love Explorer vous recontacte personnellement, puis-je avoir votre prénom ?" }
+        ];
+      }
       return [
-        { type: "text", text: "Avec plaisir ! On repart sur une nouvelle recherche ? ✨" },
-        { type: "options", options: [{ label: "↺ Recommencer", value: "__restart__" }, { label: "📅 Vérifier les disponibilités", value: "__book__" }] }
+        { type: "text", text: "Dites-moi le mot et un conseiller vous recontacte, ou on repart sur d'autres envies ! ✨" },
+        { type: "options", options: [{ label: "✨ Qu'on me recontacte", value: "__book__" }, { label: "↺ Nouvelle recherche", value: "__restart__" }] }
       ];
     }
 

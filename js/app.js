@@ -9,7 +9,7 @@
 (() => {
   /* Version affichée en pied de fenêtre — incrémentée à chaque évolution.
      Permet de vérifier d'un coup d'œil que le déploiement est à jour. */
-  const KIA_VERSION = "1.5";
+  const KIA_VERSION = "1.6";
 
   const messagesEl = document.getElementById("kia-messages");
   const quickEl = document.getElementById("kia-quick");
