@@ -25,9 +25,34 @@ frontend bascule tout seul en mode guidé si l'API ne répond plus.
    (framework : **Other**, aucune configuration de build nécessaire).
 2. Dans *Settings → Environment Variables*, ajouter :
    - `ANTHROPIC_API_KEY` = votre clé API Anthropic ([console.anthropic.com](https://console.anthropic.com))
+   - `LEAD_WEBHOOK_URL` *(optionnel)* = URL qui recevra chaque lead en JSON
+     (webhook Zapier / Make / Slack / votre CRM)
 3. Déployer. C'est tout !
 
 Sans l'étape 2, le chat fonctionne quand même — en mode guidé.
+
+## 📇 Capture des leads
+
+Quand un client montre de l'intérêt (disponibilités, réservation), Kia demande
+son **prénom** puis un **email ou téléphone** — dans les deux modes — en
+précisant que ces coordonnées ne servent qu'à être recontacté par Love
+Explorer. Le lead est alors envoyé à `POST /api/lead` avec tout le contexte :
+
+```json
+{
+  "name": "Robin",
+  "contact": "robin@example.com",
+  "source": "guide",
+  "profile": { "occasion": "demande", "ambiance": "mer", "budget": "prestige", "region": "sud" },
+  "recommendation": "villa-mer",
+  "receivedAt": "2026-07-08T14:30:00.000Z"
+}
+```
+
+Chaque lead est **toujours journalisé** dans les logs Vercel (*Deployments →
+Functions → api/lead*), et **transmis à `LEAD_WEBHOOK_URL`** si elle est
+configurée — le plus simple pour alimenter un Google Sheet (Zapier/Make), un
+canal Slack ou votre CRM sans écrire de code.
 
 ## 🖼️ Intégrer au site Love Explorer
 

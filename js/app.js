@@ -16,6 +16,18 @@
   let aiMode = false;
   let busy = false;
   let history = []; // historique {role, content} pour le mode IA
+  let leadSent = false;
+
+  /* Transmet un lead qualifié au backend (logs Vercel + webhook CRM). */
+  function sendLead(lead) {
+    if (leadSent) return;
+    leadSent = true;
+    fetch("/api/lead", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(lead),
+    }).catch(() => {});
+  }
 
   /* ---------- Cadence "humaine" des réponses de Kia ----------
      Chaque bulle est précédée d'un temps de frappe proportionnel
@@ -160,6 +172,8 @@
         } else if (action.type === "options") {
           await wait(250);
           showQuickReplies(action.options);
+        } else if (action.type === "lead") {
+          sendLead({ ...action.lead, source: "guide" });
         }
       }
       busy = false;
@@ -192,6 +206,19 @@
 
       await playKiaText(data.message);
       history.push({ role: "assistant", content: JSON.stringify(data) });
+
+      if (data.lead && data.lead.name && data.lead.contact) {
+        sendLead({
+          name: data.lead.name,
+          contact: data.lead.contact,
+          source: "ia",
+          conversation: history.map((m) =>
+            m.role === "assistant"
+              ? { role: m.role, content: (JSON.parse(m.content).message || "") }
+              : m
+          ),
+        });
+      }
 
       for (const id of data.recommendations || []) {
         const listing = LISTINGS.find((l) => l.id === id);
@@ -280,6 +307,7 @@
     messagesEl.innerHTML = "";
     quickEl.innerHTML = "";
     history = [];
+    leadSent = false;
     addIntro();
     if (aiMode) {
       busy = true;

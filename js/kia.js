@@ -135,7 +135,10 @@ const Kia = (() => {
     state = {
       stepIndex: -1, // -1 = accueil pas encore envoyé
       profile: { occasion: null, ambiance: null, budget: null, region: null, extras: [] },
-      done: false
+      done: false,
+      leadStep: null, // null | "name" | "contact" | "done"
+      lead: { name: null, contact: null },
+      topListingId: null
     };
   }
   reset();
@@ -227,7 +230,9 @@ const Kia = (() => {
 
   function finish() {
     state.done = true;
-    const results = recommend(state.profile).filter((r) => r.score > 0);
+    // Une concierge a déjà fait le tri : 2 propositions au grand maximum
+    const results = recommend(state.profile, 2).filter((r) => r.score > 0);
+    if (results.length) state.topListingId = results[0].listing.id;
     const p = state.profile;
     const actions = [
       { type: "text", text: "Laissez-moi regarder parmi nos 250 pépites… 🔎" }
@@ -237,7 +242,7 @@ const Kia = (() => {
         type: "text",
         text: "Hmm, je n'ai pas de correspondance parfaite avec tous ces critères… mais voici mes 3 chouchous du moment, ils font toujours mouche ! 😉"
       });
-      actions.push({ type: "cards", items: recommend({ occasion: p.occasion, ambiance: null, budget: null, region: "partout", extras: [] }) });
+      actions.push({ type: "cards", items: recommend({ occasion: p.occasion, ambiance: null, budget: null, region: "partout", extras: [] }, 2) });
     } else {
       actions.push({
         type: "text",
@@ -259,6 +264,56 @@ const Kia = (() => {
     return actions;
   }
 
+  /* ---------- Collecte des coordonnées (lead) ---------- */
+
+  const EMAIL_RE = /\S+@\S+\.\S{2,}/;
+  const PHONE_RE = /(\+?\d[\d\s().-]{7,})/;
+
+  function handleLeadInput(rawValue) {
+    const text = String(rawValue).trim();
+
+    if (state.leadStep === "name") {
+      if (text.length < 2 || text.length > 60) {
+        return [{ type: "text", text: "Pardon, je n'ai pas bien saisi votre prénom — pouvez-vous me le redonner ? 😊" }];
+      }
+      state.lead.name = text.replace(/^(je m'appelle|moi c'est|c'est)\s+/i, "").trim();
+      state.leadStep = "contact";
+      return [
+        { type: "text", text: `Enchantée, ${state.lead.name} ! 🤍` },
+        { type: "text", text: "Sur quel email ou numéro de téléphone notre conseiller peut-il vous joindre ? Vos coordonnées ne serviront qu'à ce rappel, promis." }
+      ];
+    }
+
+    if (state.leadStep === "contact") {
+      const email = text.match(EMAIL_RE);
+      const phone = text.match(PHONE_RE);
+      if (!email && !phone) {
+        return [{ type: "text", text: "Hmm, cela ne ressemble ni à un email ni à un numéro… Pouvez-vous vérifier ? 😊" }];
+      }
+      state.lead.contact = (email ? email[0] : phone[0]).trim();
+      state.leadStep = "done";
+      return [
+        {
+          type: "lead",
+          lead: {
+            name: state.lead.name,
+            contact: state.lead.contact,
+            profile: { ...state.profile },
+            recommendation: state.topListingId
+          }
+        },
+        { type: "text", text: `Merci ${state.lead.name} ! ✨ C'est noté : un conseiller Love Explorer vous recontacte très vite pour confirmer les disponibilités et peaufiner votre séjour.` },
+        { type: "options", options: [{ label: "↺ Nouvelle recherche", value: "__restart__" }] }
+      ];
+    }
+
+    // leadStep === "done"
+    return [
+      { type: "text", text: "Votre demande est déjà entre les mains d'un conseiller. 🤍 On repart sur une autre recherche en attendant ?" },
+      { type: "options", options: [{ label: "↺ Nouvelle recherche", value: "__restart__" }] }
+    ];
+  }
+
   function handleInput(rawValue, isFreeText) {
     // Commandes globales
     if (rawValue === "__restart__") {
@@ -266,10 +321,13 @@ const Kia = (() => {
       return greeting();
     }
     if (rawValue === "__book__") {
+      state.leadStep = "name";
       return [
-        { type: "text", text: "Parfait ! 🎉 Un conseiller Love Explorer confirme les disponibilités et revient vers vous très vite. En attendant, vous pouvez explorer les fiches complètes sur la page. 💕" },
-        { type: "options", options: [{ label: "↺ Nouvelle recherche", value: "__restart__" }] }
+        { type: "text", text: "Avec grand plaisir ! Pour que notre conseiller vous recontacte personnellement, puis-je avoir votre prénom ?" }
       ];
+    }
+    if (state.leadStep) {
+      return handleLeadInput(rawValue);
     }
 
     if (state.stepIndex < 0) return greeting();
